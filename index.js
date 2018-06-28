@@ -51,6 +51,7 @@ var Player = function (socket) {
     self.pressingDown = false;
     self.pressingAttack = false;
     self.mouseAngle = 0;
+    self.bulletAngle = { x: 0, y: 0};
     self.maxSpd = 10;
     self.hp = 10;
     self.hpMax = 10;
@@ -63,14 +64,14 @@ var Player = function (socket) {
 
         if(self.pressingAttack) {
             //  for(var i = -1; i < 1; i++)
-            self.shootBullet(10 + self.mouseAngle);
+            self.shootBullet(self.bulletAngle);
         }
     }
 
-    self.shootBullet = function(angle) {
-        var b = Bullet(self.id, angle);
-        b.x = self.x;
-        b.y = self.y;
+    self.shootBullet = function(bulletAngle) {
+        var b = Bullet(self, bulletAngle);
+        // b.x = self.x;
+        // b.y = self.y;
     }
 
     self.updateSdp = function() {
@@ -124,7 +125,7 @@ Player.onConnect = function(socket) {
     var player = Player(socket);
 
     socket.on('keyPress', (data) => {
-
+        console.log(data);
         var inputId = data.inputId;
         if (inputId === 'left')
             player.pressingLeft = data.state;
@@ -137,7 +138,7 @@ Player.onConnect = function(socket) {
         if (inputId === 'attack')
             player.pressingAttack = data.state;
         if (inputId === 'mouseAngle')
-            player.mouseAngle = data.state;
+            player.bullet = data.mouseAngle;
     });
 
     socket.emit('init', {
@@ -170,12 +171,27 @@ Player.updatePlayer = function() {
     return pack;
 }
 
-var Bullet = function (parent, angle) {
+
+
+var Bullet = function (player, bulletAngle) {
+
     var self = Entity();
+    self.x = player.x;
+    self.y = player.y;
+     
     self.id = Math.random();
-    self.parent = parent;
-    self.spdX = Math.cos(angle / 180 * Math.PI) * 10;
-    self.spdY = Math.sin(angle / 180 * Math.PI) * 10;
+    self.parent = player.id;
+
+    var speed = 10;
+    var dx = (bulletAngle.x - player.x);
+    var dy = (bulletAngle.y - player.y);
+    var mag = Math.sqrt(dx * dx + dy * dy);
+    self.spdX = (dx / mag) * speed;
+    self.spdY = (dy / mag) * speed;
+
+
+    // self.spdX = Math.cos(angle / 180 * Math.PI) * 10;
+    // self.spdY = Math.sin(angle / 180 * Math.PI) * 10;
    
     self.timer = 0;
     self.toRemove = false;
@@ -227,6 +243,8 @@ var Bullet = function (parent, angle) {
         return Math.sqrt((self.x - p.x)*(self.x - p.x) + (self.y - p.y)*(self.y - p.y) );
     }
 
+
+
     initPack.bullet.push(self.getInitPack());
 
     return self;
@@ -250,6 +268,7 @@ Bullet.updateBullet = function() {
     }
     return pack;
 }
+
 
 Bullet.getAllInitPack = function() {
     var bullets = [];

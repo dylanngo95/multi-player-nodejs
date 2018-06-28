@@ -7,20 +7,102 @@
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
     <title>Test socket</title>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/2.1.1/socket.io.js"></script>
+    <style>
+        body {
+            font-family: Arial, Helvetica, sans-serif;
+            background-color: black;
+        }
+        
+        * {
+            box-sizing: border-box;
+        }
+        
+        /* Add padding to containers */
+        .container {
+            padding: 16px;
+            background-color: white;
+        }
+        
+        /* Full-width input fields */
+        input[type=text], input[type=password] {
+            width: 100%;
+            padding: 15px;
+            margin: 5px 0 22px 0;
+            display: inline-block;
+            border: none;
+            background: #f1f1f1;
+        }
+        
+        input[type=text]:focus, input[type=password]:focus {
+            background-color: #ddd;
+            outline: none;
+        }
+        
+        /* Overwrite default styles of hr */
+        hr {
+            border: 1px solid #f1f1f1;
+            margin-bottom: 25px;
+        }
+        
+        /* Set a style for the submit button */
+        .registerbtn {
+            background-color: #4CAF50;
+            color: white;
+            padding: 16px 20px;
+            margin: 8px 0;
+            border: none;
+            cursor: pointer;
+            width: 100%;
+            opacity: 0.9;
+        }
+        
+        .registerbtn:hover {
+            opacity: 1;
+        }
+        
+        /* Add a blue text color to links */
+        a {
+            color: dodgerblue;
+        }
+        
+        /* Set a grey background color and center the text of the "sign in" section */
+        .signin {
+            background-color: #f1f1f1;
+            text-align: center;
+        }
+    </style>
 </head>
 
 <body>
 
-    <div id="login">
-        username:
-        <input id="username" type="text" /> password:
-        <input id="password" type="text" />
-        <button id="signin">SignIn</button>
-        <button id="signup">SignUp</button>
+    <div id="login" class="login">
+        <div class="container">
+          <h1>Welcome</h1>
+          <hr>
+      
+          <label for="email"><b>User Name</b></label>
+          <input id="username" type="text" placeholder="Enter User Name" name="username" required>
+      
+          <label for="password"><b>Password</b></label>
+          <input id="password" type="password" placeholder="Enter Password" name="password" required>
+      
+          <hr>
+      
+          <button id="signup" class="registerbtn">Register</button>
+          <button id="signin" class="registerbtn">Login</button>
+
+        </div>
+        
+        <div class="container signin">
+          <p>Already have an account? <a href="#">Sign in</a>.</p>
+        </div>
     </div>
+      
+
     <br/>
+
     <div id="game" style="display: none;">
-        <canvas id="ctx" width="1000px" height="1000px" style="border: 1px solid #000000"></canvas>
+        <canvas id="ctx" width="1920px" height="1080px" style="border: 1px solid #000000"></canvas>
         <div id="text-chat" style="width: 500px; height: 100px; overflow-y: scroll; background-color: aliceblue;">
         </div>
         <form id="form-chat">
@@ -33,8 +115,8 @@
         // instance socket
         var socket = io();
 
-        var WIDTH = 1000;
-        var HEIGHT = 1000;
+        var WIDTH = 1920;
+        var HEIGHT = 1080;
 
         // SignIn
         var login = document.getElementById('login');    
@@ -85,14 +167,11 @@
         Img.bullet = new Image();
         Img.bullet.src = "/client/img/bullet.png";
         Img.map = new Image();
-        Img.map.src= "/client/img/map.png";
+        Img.map.src= "/client/img/map1.png";
 
         // canvas
         var ctx = document.getElementById('ctx').getContext('2d');
         ctx.font = '25px Arial';
-
-        // Draw map
-       
 
         var Player = function (initPack) {
             var self = {};
@@ -109,23 +188,35 @@
                 var x = self.x - Player.list[selfId].x + WIDTH/2;
                 var y = self.y - Player.list[selfId].y + HEIGHT/2;
 
-                var hpWidth = 30 * self.hp / self.hpMax;
+                var hpWidth = 50 * self.hp / self.hpMax;
                 ctx.fillStyle = 'red';
-                ctx.fillRect(x - hpWidth/2, y - 40, hpWidth, 4);
+                ctx.fillRect(x - hpWidth/2, y - 50, hpWidth, 6);
 
                 var width = Img.player.width*2;
                 var height = Img.player.height*2;
-                ctx.drawImage(Img.player, 0, 0, Img.player.width, Img.player.height,
-                x - width/2, y - height/2, width, height);    
+                // ctx.drawImage(Img.player, 0, 0, Img.player.width, Img.player.height,
+                // x - width/2, y - height/2, width, height);    
+                drawPlayer(x, y);
 
-
-                // ctx.fillText(self.name, self.x, self.y);
-                // ctx.fillText(self.score, self.x, self.y - 40);
+                ctx.fillText(self.name, x - width/2, y + 50);
             }
 
             Player.list[self.id] = self;
             return self;
         };
+
+        var drawPlayer = function (x, y) {
+            var radius = 30;
+
+            ctx.beginPath();
+            ctx.arc(x, y, radius, 0, 2 * Math.PI, false);
+            ctx.fillStyle = 'green';
+            ctx.fill();
+            ctx.lineWidth = 5;
+            ctx.strokeStyle = '#003300';
+            ctx.stroke();
+        }
+
         Player.list = {};
 
         var Bullet = function (initPack) {
@@ -216,19 +307,6 @@
             var x = -Player.list[selfId].x + WIDTH/2;
             var y = -Player.list[selfId].y + HEIGHT/2;
             ctx.drawImage(Img.map, x, y);
-
-            // ctx.fillStyle = 'white';
-            // ctx.fillRect(0,0,1000,1000);
-
-            // var draw = 100;
-            // for (var i = 0; i < 1000 && draw <= 1000; i++) {
-            //     ctx.fillStyle = 'black';
-            //     ctx.fillRect(0, draw, 1000, 2);
-            //     ctx.fillStyle = 'yellow';
-            //     ctx.fillRect(draw, 0, 2, 1000);
-            //     draw += 200;
-            // }
-
         };
 
         var drawScore = function() {
@@ -280,6 +358,8 @@
 
         }
 
+        
+
         document.onmousedown = function (event) {
             socket.emit('keyPress', { inputId: 'attack', state: true });
         }
@@ -291,8 +371,12 @@
         document.onmousemove = function (event) {
             var x = -250 + event.clientX - 8;
             var y = -250 + event.clientY - 8;
-            var angle = Math.atan2(y, x) / Math.PI * 180;
-            socket.emit('keyPress', { inputId: 'mouseAngle', state: angle });
+            // var angle = Math.atan2(y, x) / Math.PI * 180;
+            socket.emit('keyPress', { inputId: 'mouseAngle', mouseAngle: {
+                x: x, 
+                y: y,
+            } 
+            });
         }
 
     </script>

@@ -3,25 +3,286 @@
 <head>
     <meta charset="UTF-8">
     <title>Demo Canvas</title>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
 </head>
 <body>
-    <canvas id="ctx" width="1000px" height="1000px" style="border: 3px solid #000000"></canvas>
+    <canvas id="Mykybo" width="500" height="500"></canvas>
     <script>
-        var ctx = document.getElementById('ctx').getContext('2d');
-        ctx.font = '25px Arial';
+        function draw() {
+    var canvas = document.getElementById('Mykybo');
+    if (!canvas.getContext) return;
+    var ctx = canvas.getContext('2d');
 
-        ctx.fillStyle = 'white';
+    //compatability            
+    var requestAnimationFrame = window.requestAnimationFrame || //Chromium 
+    window.webkitRequestAnimationFrame || //Webkit
+    window.mozRequestAnimationFrame || //Mozilla Geko
+    window.oRequestAnimationFrame || //Opera Presto
+    window.msRequestAnimationFrame || //IE Trident?
+        function (callback) { //Fallback function
+            window.setTimeout(callback, 1000 / 60);
+        };
 
-        ctx.fillRect(0,0,1000,1000);
-        
-        ctx.fillStyle = 'black';
+    var DrawX = 0;
+    var DrawY = 0;
+    var time = 0;
+    var width = canvas.width;
+    var height = canvas.height;
+    var offTop = canvas.offsetTop;
+    var offLeft = canvas.offsetLeft;
+    var rectWidth = 15;
+    var rectHeight = 15;
+    var speed = 1;
+    var x = width / 2;
+    var y = height / 2;
+    var size = 30;
+    var id = 0;
+    var bulletId = 0;
 
-        var draw = 100;
-        for (var i = 0; i < 500 * 20 && draw < 1000; i++) {
-            ctx.fillRect(0, draw, 1000, 2);
-            ctx.fillRect(draw, 0, 2, 1000);
-            draw += 100;
+    //========== PLAYERS ==========     
+    function player(id, color, size, x, y) {
+        this.id = id;
+        this.color = color;
+        this.size = size;
+        this.x = x;
+        this.y = y;
+        this.speed = speed;
+    }
+    var playerList = [];
+
+    function addPlayer(color, size, x, y) {
+        playerList[id] = new player(id, color, size, x, y);
+        id += 1;
+    }
+    addPlayer("green", size, width / 2 - 50, height / 2);
+    addPlayer("red", size, width / 2 + 50, height / 2);
+
+    //================================= KEY LOGGING =================================
+    //=================================    MOVING   ================================= 
+    var pressedKeys = [];
+
+    //declare as globals coz of debug
+
+
+    function moveLeft(checkId, checkX, checkY, cSize, cSpeed, cKey) {
+        var x = checkX - cSpeed;
+        var y = checkY - cSpeed;
+        var x2 = checkX + cSize + cSpeed;
+        var y2 = checkY + cSize + cSpeed;
+        if (x > 0) {
+            playerList[checkId].x = checkX - cSpeed;
+        } else {
+            playerList[checkId].x = 0;
         }
+    }
+
+    function moveUp(checkId, checkX, checkY, cSize, cSpeed, cKey) {
+        var x = checkX - cSpeed;
+        var y = checkY - cSpeed;
+        var x2 = checkX + cSize + cSpeed;
+        var y2 = checkY + cSize + cSpeed;
+        if (y > 0) {
+            playerList[checkId].y = checkY - cSpeed;
+        } else {
+            playerList[checkId].y = 0;
+        }
+    }
+
+    function moveRight(checkId, checkX, checkY, cSize, cSpeed, cKey) {
+        var x = checkX - cSpeed;
+        var y = checkY - cSpeed;
+        var x2 = checkX + cSize + cSpeed;
+        var y2 = checkY + cSize + cSpeed;
+        if (x2 < width) {
+            playerList[checkId].x = checkX + cSpeed;
+        } else {
+            playerList[checkId].x = width - cSize;
+        }
+    }
+
+    function moveDown(checkId, checkX, checkY, cSize, cSpeed, cKey) {
+        var x = checkX - cSpeed;
+        var y = checkY - cSpeed;
+        var x2 = checkX + cSize + cSpeed;
+        var y2 = checkY + cSize + cSpeed;
+        if (y2 < height) {
+            playerList[checkId].y = checkY + cSpeed;
+        } else {
+            playerList[checkId].y = height - cSize;
+        }
+    }
+
+    function Move(checkId, checkX, checkY, cSize, cSpeed, cKey) {
+
+
+        //player 1
+        if (checkId === 0) {
+            switch (cKey) {
+                case 37:
+                    // left
+                    moveLeft(checkId, checkX, checkY, cSize, cSpeed, cKey);
+                    break;
+
+                case 38:
+                    // up 
+                    moveUp(checkId, checkX, checkY, cSize, cSpeed, cKey);
+                    break;
+
+                case 39:
+                    // right         
+                    moveRight(checkId, checkX, checkY, cSize, cSpeed, cKey);
+                    break;
+
+                case 40:
+                    // down         
+                    moveDown(checkId, checkX, checkY, cSize, cSpeed, cKey);
+                    break;
+
+                default:
+                    return; // exit this handler for other keys 
+            }
+        }
+        //player 2
+        if (checkId == 1) {
+            switch (cKey) {
+                case 65:
+                    // left - A
+                    moveLeft(checkId, checkX, checkY, cSize, cSpeed, cKey);
+                    break;
+
+                case 87:
+                    // up - W
+                    moveUp(checkId, checkX, checkY, cSize, cSpeed, cKey);
+                    break;
+
+                case 68:
+                    // right - D
+                    moveRight(checkId, checkX, checkY, cSize, cSpeed, cKey);
+                    break;
+
+                case 83:
+                    // down - S
+                    moveDown(checkId, checkX, checkY, cSize, cSpeed, cKey);
+                    break;
+
+                default:
+                    return; // exit this handler for other keys
+            }
+        }
+    }
+
+    var validKeys = [];
+    validKeys[0] = "37,38,39,40-107,109,80";
+    validKeys[1] = "65,87,68,83-107,109,80";
+
+    // == KEYDOWN ==
+    $(document.body).keydown(function (e) {
+        e.preventDefault();
+
+        //go through all players
+        $.each(playerList, function (i, currentPlayer) {
+            if (validKeys[currentPlayer.id].indexOf(e.which) == -1) return true;
+            if (!pressedKeys[e.which]) {
+                //set interval for the function
+                pressedKeys[e.which] = setInterval(function () {
+                    Move(currentPlayer.id, currentPlayer.x, currentPlayer.y, currentPlayer.size, currentPlayer.speed, e.which);
+                }, 5);
+            }
+        });
+        //+    
+        if (pressedKeys[107]) {
+            playerList[0].speed += 1;
+        }
+        //-
+        if (pressedKeys[109] && playerList[0].speed > 1) {
+            playerList[0].speed -= 1;
+        }
+        //addplayer
+        if (pressedKeys[80]) {
+            addPlayer("red", size, width / 2 + id * size, height / 2 + id * size);
+        }
+    });
+
+    // == KEYUP ==    
+    $(document.body).keyup(function (e) {
+        if (pressedKeys[e.which]) {
+            clearInterval(pressedKeys[e.which]);
+            delete pressedKeys[e.which];
+        }
+    });
+
+    //===============================    SHOOTING   ===============================
+
+    //Bullets
+    function bullet(id, color, size, speed, x, y, eX, eY) {
+        this.id = id;
+        this.color = color;
+        this.size = size;
+        this.x = x;
+        this.y = y;
+        this.eX = eX;
+        this.eY = eY;
+        this.velocityX = 1;
+        this.velocityY = 1;
+        this.speed = speed;
+    }
+
+    var bulletList = [];
+
+    function addBullet(color, bsize, bspeed, x, y, eX, eY) {
+        bulletList[bulletId] = new bullet(bulletId, color, bsize, bspeed, x, y, eX, eY);
+        bulletId += 1;
+    }
+
+    function updateBullet(bullet, player) {
+        var dx = (bullet.eX - player.x);
+        var dy = (bullet.eY - player.y);
+        var mag = Math.sqrt(dx * dx + dy * dy);
+        bullet.velocityX = (dx / mag) * speed;
+        bullet.velocityY = (dy / mag) * speed;
+        bullet.x += bullet.velocityX;
+        bullet.y += bullet.velocityY;
+    }
+
+    // Add event listener for `click` events.
+    canvas.onmousedown = function (e) {
+        addBullet("black", 10, 2, playerList[0].x, playerList[0].y, e.x, e.y);
+    };
+
+    // ======= DRAWING =======      
+    function drawFrame() {
+        requestAnimationFrame(drawFrame);
+        ctx.font = "15pt Georgia"; // sets the font and font size of the text
+        ctx.clearRect(0, 0, width, height);
+        $.each(playerList, function (index, currentPlayer) {
+            //debug 
+            ctx.fillStyle = "black";
+            ctx.fillText("players: " + id, 50, 40);
+            ctx.fillText("bullets: " + bulletId, 50, 60);
+
+            //draw players                           
+            DrawX = currentPlayer.x;
+            DrawY = currentPlayer.y;
+            rectWidth = currentPlayer.size;
+            rectHeight = currentPlayer.size;
+            ctx.fillStyle = currentPlayer.color;
+            ctx.fillRect(DrawX, DrawY, rectWidth, rectHeight);
+            ctx.fillStyle = "black";
+            ctx.fillText("id: " + currentPlayer.id, DrawX, DrawY);
+            ctx.fillText("speed: " + currentPlayer.speed, DrawX, DrawY - 20);
+            ctx.fillText("x: " + currentPlayer.x, DrawX, DrawY - 40);
+            ctx.fillText("y: " + currentPlayer.y, DrawX, DrawY - 60);
+        });
+        //draw bullets
+        $.each(bulletList, function (index, bullet) {
+            updateBullet(bullet, playerList[0]);
+            ctx.fillStyle = bullet.color;
+            ctx.fillRect(bullet.x, bullet.y, bullet.size, bullet.size);
+        });
+    }
+    drawFrame();
+}
+    $(draw);
 
     </script>
 </body>
