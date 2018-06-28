@@ -213,21 +213,21 @@
         }, 40);
 
         var drawMap = function() {
-            // var x = -Player.list[selfId].x + WIDTH/2;
-            // var y = -Player.list[selfId].y + HEIGHT/2;
-            // ctx.drawImage(Img.map, x, y);
+            var x = -Player.list[selfId].x + WIDTH/2;
+            var y = -Player.list[selfId].y + HEIGHT/2;
+            ctx.drawImage(Img.map, x, y);
 
             // ctx.fillStyle = 'white';
             // ctx.fillRect(0,0,1000,1000);
 
-            var draw = 100;
-            for (var i = 0; i < 1000 && draw <= 1000; i++) {
-                ctx.fillStyle = 'black';
-                ctx.fillRect(0, draw, 1000, 2);
-                ctx.fillStyle = 'yellow';
-                ctx.fillRect(draw, 0, 2, 1000);
-                draw += 200;
-            }
+            // var draw = 100;
+            // for (var i = 0; i < 1000 && draw <= 1000; i++) {
+            //     ctx.fillStyle = 'black';
+            //     ctx.fillRect(0, draw, 1000, 2);
+            //     ctx.fillStyle = 'yellow';
+            //     ctx.fillRect(draw, 0, 2, 1000);
+            //     draw += 200;
+            // }
 
         };
 
