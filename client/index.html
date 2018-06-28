@@ -102,7 +102,7 @@
     <br/>
 
     <div id="game" style="display: none;">
-        <canvas id="ctx" width="1920px" height="1080px" style="border: 1px solid #000000"></canvas>
+        <canvas id="ctx" width="1000px" height="1000px" style="border: 1px solid #000000"></canvas>
         <div id="text-chat" style="width: 500px; height: 100px; overflow-y: scroll; background-color: aliceblue;">
         </div>
         <form id="form-chat">
@@ -115,8 +115,8 @@
         // instance socket
         var socket = io();
 
-        var WIDTH = 1920;
-        var HEIGHT = 1080;
+        var WIDTH = 1000;
+        var HEIGHT = 1000;
 
         // SignIn
         var login = document.getElementById('login');    
@@ -301,7 +301,7 @@
                 Bullet.list[i].draw();
             }
 
-        }, 40);
+        }, 1000 / 60);
 
         var drawMap = function() {
             var x = -Player.list[selfId].x + WIDTH/2;
