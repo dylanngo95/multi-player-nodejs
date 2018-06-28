@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Demo Canvas</title>
+</head>
+<body>
+    <canvas id="ctx" width="1000px" height="1000px" style="border: 3px solid #000000"></canvas>
+    <script>
+        var ctx = document.getElementById('ctx').getContext('2d');
+        ctx.font = '25px Arial';
+
+        ctx.fillStyle = 'white';
+
+        ctx.fillRect(0,0,1000,1000);
+        
+        ctx.fillStyle = 'black';
+
+        var draw = 100;
+        for (var i = 0; i < 500 * 20 && draw < 1000; i++) {
+            ctx.fillRect(0, draw, 1000, 2);
+            ctx.fillRect(draw, 0, 2, 1000);
+            draw += 100;
+        }
+
+    </script>
+</body>
+</html>
