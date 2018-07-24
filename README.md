@@ -6,13 +6,25 @@
 
 ## Set up project
 
-1, Clone project: git clone https://github.com/jundat95/multi-player-nodejs.git
+1, Clone project: 
+```bash
+  git clone https://github.com/jundat95/multi-player-nodejs.git
+```
 
-2, cd multi-player-nodejs
+2, 
+```bash 
+  cd multi-player-nodejs
+```
 
-3, npm i
+3, 
+```bash 
+    npm i
+```
 
-4, node index.js 
+4, 
+```bash
+  node index.js 
+```  
 
 5, Go to site: http://localhost:3000 
 
