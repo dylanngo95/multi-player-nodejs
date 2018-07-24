@@ -1,6 +1,8 @@
 # multi-player-nodejs
 
-# Setup game in local workstation 
+Example multi player game with nodejs, game html5 canvas
+
+# Setup game in local workstation,
 
 ## You need setup mogodb in local worksation
 
